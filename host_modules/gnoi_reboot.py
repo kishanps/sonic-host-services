@@ -11,6 +11,7 @@ MOD_NAME = 'gnoi_reboot'
 # Reboot method in reboot request
 # Both enum and string representations are supported
 REBOOTMETHOD_COLD_BOOT_VALUES = {1, "COLD"}
+REBOOTMETHOD_HALT_BOOT_VALUES = {3, "HALT"}
 REBOOTMETHOD_WARM_BOOT_VALUES = {4, "WARM"}
 REBOOTMETHOD_NSF_VALUES = {5, "NSF"}
 
@@ -18,6 +19,7 @@ REBOOTMETHOD_NSF_VALUES = {5, "NSF"}
 REBOOT_TIMEOUT = 260
 
 EXECUTE_COLD_REBOOT_COMMAND = "sudo reboot"
+EXECUTE_HALT_REBOOT_COMMAND = "sudo reboot -p"
 EXECUTE_NSF_REBOOT_COMMAND = "/etc/init.d/gpins-nsf-boot nsf-reboot"
 
 logger = logging.getLogger(__name__)
@@ -54,7 +56,7 @@ class GnoiReboot(host_service.HostModule):
         # Check whether reboot method is valid.
         rebootmethod = reboot_request["method"]
         valid_method = False
-        for values in [REBOOTMETHOD_COLD_BOOT_VALUES, REBOOTMETHOD_NSF_VALUES]:
+        for values in [REBOOTMETHOD_COLD_BOOT_VALUES, REBOOTMETHOD_HALT_BOOT_VALUES, REBOOTMETHOD_NSF_VALUES]:
             if rebootmethod in values:
                 valid_method = True
         if not valid_method:
@@ -71,6 +73,9 @@ class GnoiReboot(host_service.HostModule):
         if rebootmethod in REBOOTMETHOD_COLD_BOOT_VALUES:
             command = EXECUTE_COLD_REBOOT_COMMAND
             logger.warning("%s: Issuing cold reboot", MOD_NAME)
+        if rebootmethod in REBOOTMETHOD_HALT_BOOT_VALUES:
+            command = EXECUTE_HALT_REBOOT_COMMAND
+            logger.warning("%s: Issuing halt reboot", MOD_NAME)
         elif rebootmethod in REBOOTMETHOD_NSF_VALUES:
             command = EXECUTE_NSF_REBOOT_COMMAND
             logger.warning("%s: Issuing NSF reboot", MOD_NAME)
